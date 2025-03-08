@@ -128,10 +128,67 @@ test-ansible
 
 8. Playbookの作成  
 
+myrole/tasks/main.ymlにNginxをインストールと起動するロールを記載  
+```
+# tasks file for myrole  
+- name: Update all packages  
+  yum:  
+    name: '*'  
+    state: latest  
 
+- name: Enable Nginx on Amazon Linux2  
+  command: amazon-linux-extras enable nginx1  
+  args:  
+    creates: /etc/yum.repos.d/amzn2-extras.repo  
+  
+- name: Install Nginx  
+  yum:  
+    name: nginx  
+    state: present  
+  
+- name: Start Nginx  
+  service:  
+    name: nginx  
+    state: started  
+    enabled: yes
+```  
 
+playbookとしてtest-ansible配下にsite.ymlを作成  
+site.ymlにロールを適用する  
+```
+vim test-ansible/site.yml  
+  
+- name: Apply Nginx Role  
+  hosts: web_server  
+  become: yes  
+  roles:  
+    - myrole
+```  
 
+9. Playbookの実行  
 
+```
+ansible-playbook -i hosts site.yml
+```  
+
+10. Nginxの起動確認  
+
+ansible-testのプライベートIPを使って接続確認を行う  
+
+方法①  ansible-testにログインして、Nginxが動いているかを確認  
+```
+sudo systemctl status nginx
+```  
+方法②　ansible-testにログインして、curlでアクセス確認  
+```
+curl http://プライベートIP
+```  
+方法③　ansible-serverからansible-testにcurlでアクセス確認  
+```
+curl http://ansible-testのプライベートIP
+```  
+>[!WARNING]
+>ansible-testのセキュリティグループがansible-serverからのHTTP(ポート80)を許可する
 
 # 反省点  
 
