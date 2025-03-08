@@ -12,7 +12,7 @@ Ansibleがインストールされたサーバーと管理対象のサーバー�
 今回はAnsibleの利用が初めてなため、「Nginxのインストールと起動」という簡単な内容で試した。  
 
 ## 実行手順  
-1. 同一VPC内にEC2を２台作成  
+1. **同一VPC内にEC2を２台作成**  
 
 Ansibleサーバー→ansible-server(OS:Amazon Linux2)  
 管理対象サーバー→ansible-test(OS:Amazon Linux2)  
