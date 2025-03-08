@@ -13,11 +13,20 @@ Ansibleがインストールされたサーバーと管理対象のサーバー�
 
 ## 実行手順  
 1. 同一VPC内にEC2を２台作成  
-------------------------
-Ansibleサーバー:ansible-server  
-管理対象サーバー:ansible-test  
+Ansibleサーバー→ansible-server(OS:Amazon Linux2)  
+管理対象サーバー→ansible-test(OS:Amazon Linux2)  
   
-2. 
+2. Ansibleのインストール  
+ansible-serverにAnsibleをインストール  
+```
+sudo amazon-linux-extras enable ansible2  
+sudo yum install -y ansible
+```  
+インストール確認  
+```
+ansible --version
+```
+
 # 反省点  
 
 
