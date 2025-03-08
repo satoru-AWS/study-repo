@@ -30,6 +30,7 @@ ansible --version
 ```  
 
 3. ansible-serverからansible-testへssh接続を行う  
+
 ローカルからansible-serverに秘密鍵を転送する  
 ```
 scp -i my-key.pem my-key.pem ec2-user@ansible-serverのパブリックIP:/home/ec2-user/  
@@ -42,12 +43,95 @@ chmod 400 my-key.pem
 ```  
 
 4. ansible-serverからansible-testにSSH接続を確認  
-ansible-serverにSSHでログインし、ansible-testにSSｈ接続を行う  
+
+ansible-serverにSSHでログインし、ansible-testにSSH接続を行う  
 >[!WARNING]
 >セキュリティ上、ansible-testのプライベートIPを使用してSSH接続を行う  
 ```
 ssh -i my-key.pem ec2-user@ansible-testプライベートIP
 ```  
+>[!NOTE]
+>ansible-testのセキュリティグループにansible-serverからのSSH(ポート22)を許可する  
+
+5. 管理対象のansible-testをAnsibleに登録  
+
+>[!NOTE]
+>インベントリファイルとはAnsibleが管理する対象サーバー(インベントリ)を定義するファイル  
+
+ansible-serverの/etc/ansible/hostsを編集  
+ただし、/etc/ansible/hostsはデフォルトのインベントリファイルであり、別に任意のインベントリファイルでを作成し、
+コマンド実行時に自分で作成したインベントリファイルを指定してもOK  
+今回はtest-ansibleというディレクトリを作成  
+```
+mkdir test-ansible  
+cd test-ansible  
+```  
+hostsというインベントリファイルを作成しansible-testを登録
+```
+vim hosts  
+[web_server]  
+ansible-test ansible_host=ansible-testのプライベートIP ansible_user=ec2-user ansible_ssh_private_key_file=/home/ec2-user/my-key.pem
+```  
+* [web_server]→[グループ名]管理対象のサーバーをまとめるグループ名  
+* ansible_host=<IPアドレス>→接続先のサーバーIP  
+* ansible_user=ec2-user→EC2のデフォルトユーザー  
+* ansible_ssh_private_key_file=<鍵のパス>→SSH接続用の秘密鍵  
+
+6. Ansibleの接続テスト  
+
+Ansibleが正常に動くかを確認  
+```
+ansible all -m ping -i /home/ec2-user/test-ansible/hosts
+```  
+SUCCESSが出ればOK  
+
+7. ロールの作成  
+
+test-ansible配下にrolesディレクトリを作成  
+roles配下にansible-galaxyコマンドでAnsibleのロールを作成  
+/home/ec2-user/test-ansible/roles/myrole/~  
+myrole→ロール名を指定する  
+今回はロール名をNginxとすべきところを、誤ってmyroleで作成してしまった  
+```
+mkdir roles  
+ansible-galaxy init myrole
+```  
+>[!NOTE]
+>ansible-galaxy init myrokeコマンドはAnsibleのロールを作成できるコマンド
+>ロールを使うと、設定を整理しやすくなり、再利用もしやすくなる
+>自動的に各種設定ファイルが作成される  
+
+ansible-galaxy init myroleコマンドにより以下の構成が出来上がった  
+```
+test-ansible
+├── hosts
+├── roles
+│   └── myrole
+│       ├── README.md
+│       ├── defaults
+│       │   └── main.yml
+│       ├── files
+│       ├── handlers
+│       │   └── main.yml
+│       ├── meta
+│       │   └── main.yml
+│       ├── tasks
+│       │   └── main.yml
+│       ├── templates
+│       ├── tests
+│       │   ├── inventory
+│       │   └── test.yml
+│       └── vars
+│           └── main.yml
+└── site.yml
+```  
+
+8. Playbookの作成  
+
+
+
+
+
 
 # 反省点  
 
