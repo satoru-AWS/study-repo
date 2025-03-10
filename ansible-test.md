@@ -8,6 +8,9 @@ Ansibleがインストールされたサーバーと管理対象のサーバー�
 
 # テスト実行    
 ## AWS環境  
+
+![構成図](img/ansible-test/ansible構成.drawio.png)  
+
 ## 目的  
 今回はAnsibleの利用が初めてなため、「Nginxのインストールと起動」という簡単な内容で試した。  
 
@@ -17,7 +20,7 @@ Ansibleがインストールされたサーバーと管理対象のサーバー�
 Ansibleサーバー→ansible-server(OS:Amazon Linux2)  
 管理対象サーバー→ansible-test(OS:Amazon Linux2)  
   
-2. Ansibleのインストール  
+2. **Ansibleのインストール**  
 
 ansible-serverにAnsibleをインストール  
 ```
@@ -29,7 +32,7 @@ sudo yum install -y ansible
 ansible --version
 ```  
 
-3. ansible-serverからansible-testへssh接続を行う  
+3. **ansible-serverからansible-testへssh接続を行う**  
 
 ローカルからansible-serverに秘密鍵を転送する  
 ```
@@ -42,7 +45,7 @@ ansible-serverにSSHでログインし、秘密鍵の権限を設定する
 chmod 400 my-key.pem
 ```  
 
-4. ansible-serverからansible-testにSSH接続を確認  
+4. **ansible-serverからansible-testにSSH接続を確認**  
 
 ansible-serverにSSHでログインし、ansible-testにSSH接続を行う  
 >[!WARNING]
@@ -53,7 +56,7 @@ ssh -i my-key.pem ec2-user@ansible-testプライベートIP
 >[!NOTE]
 >ansible-testのセキュリティグループにansible-serverからのSSH(ポート22)を許可する  
 
-5. 管理対象のansible-testをAnsibleに登録  
+5. **管理対象のansible-testをAnsibleに登録**  
 
 >[!NOTE]
 >インベントリファイルとはAnsibleが管理する対象サーバー(インベントリ)を定義するファイル  
@@ -77,7 +80,7 @@ ansible-test ansible_host=ansible-testのプライベートIP ansible_user=ec2-u
 * ansible_user=ec2-user→EC2のデフォルトユーザー  
 * ansible_ssh_private_key_file=<鍵のパス>→SSH接続用の秘密鍵  
 
-6. Ansibleの接続テスト  
+6. **Ansibleの接続テスト**  
 
 Ansibleが正常に動くかを確認  
 ```
@@ -85,7 +88,7 @@ ansible all -m ping -i /home/ec2-user/test-ansible/hosts
 ```  
 SUCCESSが出ればOK  
 
-7. ロールの作成  
+7. **ロールの作成**  
 
 test-ansible配下にrolesディレクトリを作成  
 roles配下にansible-galaxyコマンドでAnsibleのロールを作成  
@@ -126,7 +129,7 @@ test-ansible
 └── site.yml
 ```  
 
-8. Playbookの作成  
+8. **Playbookの作成**  
 
 myrole/tasks/main.ymlにNginxをインストールと起動するロールを記載  
 ```
@@ -165,13 +168,13 @@ vim test-ansible/site.yml
     - myrole
 ```  
 
-9. Playbookの実行  
+9. **Playbookの実行**  
 
 ```
 ansible-playbook -i hosts site.yml
 ```  
 
-10. Nginxの起動確認  
+10. **Nginxの起動確認**  
 
 ansible-testのプライベートIPを使って接続確認を行う  
 
@@ -190,6 +193,6 @@ curl http://ansible-testのプライベートIP
 >[!WARNING]
 >ansible-testのセキュリティグループがansible-serverからのHTTP(ポート80)を許可する
 
-# 反省点  
-
+# 所感
+今回はNginxのみという単純な構成でのテストであったが、もっと複雑な構成を自動で作成でき、またPlaybookを一度作りさえすれば何個でも同じ構成を作成できるという点は非常に魅力を感じた。また、Ansibleにおいては、確かに理解がしやすく、完全初心者な私でも利用できたという点からも使いやすさを感じた。
 
