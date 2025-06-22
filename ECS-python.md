@@ -10,15 +10,13 @@ dockerfileの作成
 [image(local)](my-flask-app)  
   
 docker build → docker run →　curl https://localhost:5000/  
-<details>
-<summary>docker主要コマンド</summary>
-<br>
-イメージ作成  
-docker build -t イメージ名 .  
-- `-t`はタグづけ  
-- `.`は現在のディレクトリをビルド対象  
-</details>  
-
 ![実行確認](img2/ECS-pthon/picture03.png)  
 ![実行](img2/ECS-pthon/picture04.png)  
+
+## docker主要コマンド  
+* イメージ作成  
+```docker build -t イメージ名 .```  
+- '-t'はタグ付け
+- '.'は現在のディレクトリをビルド対象  
+
 
