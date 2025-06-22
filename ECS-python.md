@@ -48,6 +48,7 @@ docker build → docker run →　curl https://localhost:5000/
     Docker環境では、Dockerコンテナ内からは接続できるが外部（ホストマシン）からは接続不可  
     詳しくは[Dockerコンテナに127.0.0.1でアクセス不可の場合の解消方法](https://qiita.com/taichikanaya_1989/items/5f60b55e847a33f8db41)を参照  
 解決：Pythonアプリ内でhost="0.0.0.0"で指定  
-    ```if __name__ == "__main__":
+    ```
+    if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
     ```  
