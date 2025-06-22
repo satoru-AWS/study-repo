@@ -40,17 +40,25 @@ docker build → docker run →　curl https://localhost:5000/
 * イメージにタグ付け  
 ```docker tag 元:タグ 新:タグ```  
 
-### エラー  
-* docker run実行後にcurl: (56) Recv failure: Connection reset by peerのエラー  
+### ❗️エラー  
+
   
-エラー内容:Flaskは起動しているがアクセスが切断される  
-原因:Flaskのhost設定が127.0.0.1になっているため  
-    - 127.0.0.1はループバックアドレスというコンピュータ自身を指す特別なIPアドレス  
-    - Docker環境では、Dockerコンテナ内からは接続できるが外部（ホストマシン）からは接続不可  
-    - 詳しくは[Dockerコンテナに127.0.0.1でアクセス不可の場合の解消方法](https://qiita.com/taichikanaya_1989/items/5f60b55e847a33f8db41)を参照  
-解決:Pythonアプリ内でhost="0.0.0.0"で指定  
-    ```
-    if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-    ```  
+**現象**  
+docker run実行後にcurl: (56) Recv failure: Connection reset by peerのエラー    
   
+**内容**
+Flaskは起動しているがアクセスが切断される  
+  
+**原因**
+Flaskの`host`設定が`127.0.0.1`になっているため  
+
+- 127.0.0.1はループバックアドレスというコンピュータ自身を指す特別なIPアドレス  
+- Docker環境では、Dockerコンテナ内からは接続できるが外部（ホストマシン）からは接続不可  
+- 詳しくは[Dockerコンテナに127.0.0.1でアクセス不可の場合の解消方法](https://qiita.com/taichikanaya_1989/items/5f60b55e847a33f8db41)を参照  
+  
+**解決方法**
+Pythonアプリ内で`host="0.0.0.0"`を指定  
+```
+if __name__ == "__main__":
+app.run(host="0.0.0.0", port=5000, debug=True)
+```  
