@@ -1,6 +1,6 @@
 # 学習内容  
 ## 実行手順  
-1. PthonでTODOアプリを作成(ローカル環境ver)  
+1. PythonでTODOアプリを作成(ローカル環境ver)  
 [TODOアプリ](TODOsub.py)  
 ![空実行](img2/ECS-pthon/picture02.png)  
 ![追記実行](img2/ECS-pthon/picture01.png)  
@@ -15,6 +15,21 @@ docker build → docker run →　curl https://localhost:5000/
   
 ![実行](img2/ECS-pthon/picture04.png)  
   
+3. PythonでTODOアプリを作成（AWS環境ver) → ECRへプッシュ
+SQLite → RDS for MySQLに変更しdockerイメージを作成  
+[aws-flask-app](aws-flask-app)  
+
+イメージ作成  
+```docker build -t aws-flask-app .```  
+ECRリポジトリを作成  
+```aws ecr create-repository --repository-name aws-flask-app```  
+ECRにログイン  
+```aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 'repositoryUrl'```  
+イメージをタグ付け  
+```docker tag aws-flask-app:latest 'repositoryUrl':latest```  
+ECRにpush  
+```docker push 'repositoryUrl:latest```  
+
 ### docker主要コマンド  
 * イメージ作成  
 ```docker build -t イメージ名 .```  
@@ -46,17 +61,17 @@ docker build → docker run →　curl https://localhost:5000/
 **現象**  
 docker run実行後にcurl: (56) Recv failure: Connection reset by peerのエラー    
   
-**内容**
+**内容**　　
 Flaskは起動しているがアクセスが切断される  
   
-**原因**
+**原因**　　
 Flaskの`host`設定が`127.0.0.1`になっているため  
 
 - 127.0.0.1はループバックアドレスというコンピュータ自身を指す特別なIPアドレス  
 - Docker環境では、Dockerコンテナ内からは接続できるが外部（ホストマシン）からは接続不可  
 - 詳しくは[Dockerコンテナに127.0.0.1でアクセス不可の場合の解消方法](https://qiita.com/taichikanaya_1989/items/5f60b55e847a33f8db41)を参照  
   
-**解決方法**
+**解決方法**　　
 Pythonアプリ内で`host="0.0.0.0"`を指定  
 ```
 if __name__ == "__main__":
