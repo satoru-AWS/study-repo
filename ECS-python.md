@@ -15,7 +15,7 @@ docker build → docker run →　curl https://localhost:5000/
   
 ![実行](img2/ECS-pthon/picture04.png)  
   
-3. PythonでTODOアプリを作成（AWS環境ver) → ECRへプッシュ
+3. PythonでTODOアプリを作成（AWS環境ver) → ECRへプッシュ  
 SQLite → RDS for MySQLに変更しdockerイメージを作成  
 [aws-flask-app](aws-flask-app)  
 
