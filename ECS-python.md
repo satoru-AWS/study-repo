@@ -30,6 +30,24 @@ ECRにログイン
 ECRにpush  
 ```docker push 'repositoryUrl:latest```  
 
+4. ECSの準備  
+クラスター：コンテナを配置する実行基盤の集合  
+インスタンス：クラスターの中にあるEC2かFargate  
+タスク：実行するコンテナアプリ  
+サービス：タスクの数や配置ルールを管理するもの  
+  
+* ECSクラスター作成  
+今回は起動タイプをEC2で作成  
+>[!NOTE]
+>セキュリティグループの設定に注意（詳細は下記エラーで）
+>IAMロールにAmazonEC2ContainerServiceforEC2Roleを含む必要なポリシーを設定  
+  
+* タスク定義の作成  
+今回はflaskを使うため、ポートマッピングに5000を使用  
+  
+* サービスの作成  
+
+5. EC2のパブリックIPでアクセス  
 ### docker主要コマンド  
 * イメージ作成  
 ```docker build -t イメージ名 .```  
@@ -77,3 +95,21 @@ Pythonアプリ内で`host="0.0.0.0"`を指定
 if __name__ == "__main__":
 app.run(host="0.0.0.0", port=5000, debug=True)
 ```  
+  
+**現象**  
+EC2にECS Instanceが作成されたものの、ECSクラスターもインフラストラクチャに該当のEC2が表示されない  
+  
+**原因**  
+EC2のセキュリティグループにHTTPS:443ポートを許可していなかったため  
+ - ECSエージェントがAWSのECS APIと通信するのに必要なため  
+なお、事前に下記事項も確認したが問題なかった  
+SSH接続を行い```sudo systemctl status ecs```の結果active  
+- EC2内のecs-agentが動いていることが確認  
+/etc/ecs/ecs.configにECS_CLUSTER=<クラスター名>を確認した結果問題なし  
+- ECSエージェントが接続するクラスター名が間違っていないことを確認  
+IAMロールに必要なポリシーが設定されているかを確認した結果問題なし  
+- AmazonEC2ContainerServiceforEC2Roleポリシーが付与されていることを確認  
+  
+**解決方法**  
+EC2のセキュリティグループにHTTPS（443）を許可に設定  
+なおSSH(22)やFlask(5000)も併せて許可に設定  
