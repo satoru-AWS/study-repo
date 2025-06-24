@@ -104,11 +104,11 @@ EC2のセキュリティグループにHTTPS:443ポートを許可していな�
 - ECSエージェントがAWSのECS APIと通信するのに必要なため  
   
 なお、事前に下記事項も確認したが問題なかった  
-SSH接続を行い```sudo systemctl status ecs```の結果active  
+SSH接続を行い```sudo systemctl status ecs```の結果active
 - EC2内のecs-agentが動いていることが確認  
-/etc/ecs/ecs.configにECS_CLUSTER=<クラスター名>を確認した結果問題なし  
+/etc/ecs/ecs.configにECS_CLUSTER=<クラスター名>を確認した結果問題なし
 - ECSエージェントが接続するクラスター名が間違っていないことを確認  
-IAMロールに必要なポリシーが設定されているかを確認した結果問題なし  
+IAMロールに必要なポリシーが設定されているかを確認した結果問題なし
 - AmazonEC2ContainerServiceforEC2Roleポリシーが付与されていることを確認  
   
 **解決方法**  
