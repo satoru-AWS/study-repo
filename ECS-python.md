@@ -48,6 +48,13 @@ ECRにpush
 * サービスの作成  
 
 5. EC2のパブリックIPでアクセス  
+  
+EC2パブリックIP:5000 → Flask is running! Use /todos to manage tasks.  
+![Flask is running](img2/ECS-pthon/picture05.png)  
+  
+EC2パブリックIP:5000/todos → TODOアプリが起動  
+![TODOアプリ起動](img2/ECS-pthon/picture06.png)  
+  
 ### docker主要コマンド  
 * イメージ作成  
 ```docker build -t イメージ名 .```  
