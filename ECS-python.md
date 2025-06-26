@@ -122,3 +122,38 @@ EC2のセキュリティグループにHTTPS:443ポートを許可していな�
 **解決方法**  
 EC2のセキュリティグループにHTTPS（443）を許可に設定  
 なお、SSH(22)やFlask(5000)も併せて許可に設定  
+  
+**現象**  
+エラーメッセージ  
+```CannotPullContainerError: no matching manifest for linux/amd64 in the manifest list entries```  
+  
+**内容**  
+ECSがイメージをECRからプルしようとしたときに、自身のアーキテクトと一致するDockerイメージが存在していない  
+  
+**原因**  
+ECRにプッシュしていた'aws-flask-app'のイメージとEC2が扱うアーキテクチャが異なっていた  
+AWS EC2のアーキテクチャ:amd64　aws-flask-appのアーキテクチャ:arm64  
+---なぜ？---  
+使用したPCがMac(M1)であり、特に指定しない限り、arm64のイメージがビルドされるため  
+  
+**解決方法**  
+amd64のアーキテクチャになるように、Dockerイメージをビルドする  
+```docker buildx build --platform linux/amd64 -t タグ .```  
+
+**現象**  
+ECSでタスクが起動できず、サービスがロールバックされる  
+  
+**内容**  
+エラーメッセージ  
+```service was unable to place a task because no container instance met all of its requirements. The closest matching container-instance [...] has insufficient memory available.```  
+  
+**原因**  
+ECSタスクが要求するメモリサイズがEC2インスタンスで確保できなかったため。  
+タスクレベルとコンテナレベルのメモリのリソース設定を行う  
+  - タスクレベル  :ECSがインスタンス上にタスクを配置するために必要な容量  
+  - コンテナレベル：各コンテナの最小/最大メモリ使用量制限
+---具体的なエラー原因---  
+- タスクサイズ(0.5GB)よりも、コンテナ内で設定したmemory(1GB)の方が大きい  
+- EC2インスタンスの空きメモリ(t2micro=1.0GB)よりもタスクが要求するメモリが大きい  
+  
+
