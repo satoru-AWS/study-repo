@@ -1,45 +1,59 @@
 # 学習内容  
+AWS ECRとECSを利用したアプリケーションデプロイ  
+  
 ## 実行手順  
-1. PythonでTODOアプリを作成(ローカル環境ver)  
-[TODOアプリ](TODOsub.py)  
-![空実行](img2/ECS-pthon/picture02.png)  
-![追記実行](img2/ECS-pthon/picture01.png)  
+1. TODOアプリケーションの作成（ローカル環境）  
+PythonでシンプルなTODOアプリを作成し、ローカル環境での動作を確認します。  
+* TODOアプリケーションコード:[TODOアプリ](TODOsub.py)  
+* 実行結果:  
+  - ![空実行](img2/ECS-pthon/picture02.png)  
+  - ![追記実行](img2/ECS-pthon/picture01.png)  
   
-2. dockerイメージの作成→コンテナ起動  
-dockerfileの作成  
-[my-flask-app](my-flask-app)  
+2. dockerイメージの作成とコンテナ起動  
+作成したTODOアプリケーションをDocker化し、コンテナとして起動します。  
+* dockerfile:[my-flask-app](my-flask-app)  
   
-docker build → docker run →　curl https://localhost:5000/  
+実行コマンド  
+```
+docker build -t my-flask-app .  
+docker run -p 5000:5000 my-flask-app  
+curl https://localhost:5000/
+```  
   
+実行結果  
 ![実行確認](img2/ECS-pthon/picture03.png)  
   
 ![実行](img2/ECS-pthon/picture04.png)  
   
-3. PythonでTODOアプリを作成（AWS環境ver) → ECRへプッシュ  
-SQLite → RDS for MySQLに変更しdockerイメージを作成  
-[aws-flask-app](aws-flask-app)  
-
-イメージ作成  
-```docker build -t aws-flask-app .```  
-ECRリポジトリを作成  
-```aws ecr create-repository --repository-name aws-flask-app```  
-ECRにログイン  
-```aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 'repositoryUrl'```  
-イメージをタグ付け  
-```docker tag aws-flask-app:latest 'repositoryUrl':latest```  
-ECRにpush  
-```docker push 'repositoryUrl:latest```  
-
+3. TODOアプリケーションのAWS環境対応とECRへのプッシュ  
+SQLiteをRDS for MySQLに変更し、AWS環境に対応したDockerイメージを作成後、ECRへプッシュします。    
+  
+* AWS対応版アプリケーションコード:[aws-flask-app](aws-flask-app)  
+  
+ECRへのプッシュ手順  
+  1. Dockerイメージ作成  
+    ```docker build -t aws-flask-app .```  
+  2. ECRリポジトリを作成  
+    ```aws ecr create-repository --repository-name aws-flask-app```  
+  3. ECRにログイン  
+    ```aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 'repositoryUrl'```  
+  4. イメージをタグ付け  
+    ```docker tag aws-flask-app:latest 'repositoryUrl':latest```  
+  5. ECRにpush  
+    ```docker push 'repositoryUrl:latest```  
+  
 4. ECSの準備  
-クラスター：コンテナを配置する実行基盤の集合  
-インスタンス：クラスターの中にあるEC2かFargate  
-タスク：実行するコンテナアプリ  
-サービス：タスクの数や配置ルールを管理するもの  
+ECSを利用して、アプリケーションをデプロイするための環境を構築します。  
+* ECSの主要な概念  
+  * クラスター：コンテナを配置する実行基盤の集合  
+  * インスタンス：クラスターの内でコンテナを実行するEC2インスタンスまたはFargate  
+  * タスク：実行するコンテナアプリケーションの定義  
+  * サービス：タスクの数や配置ルールを管理するもの  
   
 * ECSクラスター作成  
-今回は起動タイプをEC2で作成  
+今回は起動タイプをEC2で作成します。  
 >[!NOTE]
->セキュリティグループの設定に注意（詳細は下記エラーで）  
+>セキュリティグループの設定に注意（詳細は後述のエラーセクションを参照）  
 >IAMロールにAmazonEC2ContainerServiceforEC2Roleを含む必要なポリシーを設定  
   
 * タスク定義の作成  
