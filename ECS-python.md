@@ -1,5 +1,11 @@
 # 学習内容  
 AWS ECRとECSを利用したアプリケーションデプロイ  
+
+# 実行環境  
+* 開発環境:Macbook Docker AWS CLI  
+* デプロイするアプリケーション:Flaskで構築  
+* AWSで作成するリソース:RDS VPC サブネット  
+* ECS実行環境:EC2インスタンス  
   
 ## 実行手順  
 1. TODOアプリケーションの作成（ローカル環境）  
@@ -31,15 +37,15 @@ SQLiteをRDS for MySQLに変更し、AWS環境に対応したDockerイメージ�
 * AWS対応版アプリケーションコード:[aws-flask-app](aws-flask-app)  
   
 ECRへのプッシュ手順  
-  - 1. Dockerイメージ作成  
+  - Dockerイメージ作成  
     ```docker build -t aws-flask-app .```  
-  - 2. ECRリポジトリを作成  
+  - ECRリポジトリを作成  
     ```aws ecr create-repository --repository-name aws-flask-app```  
-  - 3. ECRにログイン  
+  - ECRにログイン  
     ```aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 'repositoryUrl'```  
-  - 4. イメージをタグ付け  
+  - イメージをタグ付け  
     ```docker tag aws-flask-app:latest 'repositoryUrl':latest```  
-  - 5. ECRにpush  
+  - ECRにpush  
     ```docker push 'repositoryUrl:latest```  
   
 4. ECSの準備  
@@ -101,12 +107,12 @@ Flaskアプリケーションのため、ポートマッピングに'5000'を使
 ## 発生した❗️エラーと解決策  
 デプロイ作業中に遭遇したエラーと、その原因および解決策をまとめます。  
 
-エラー１:`docker run`実行後の`curl: (56) Recv failure: Connection reset by peer`  
+* エラー１:`docker run`実行後の`curl: (56) Recv failure: Connection reset by peer`  
 
 **現象**  
-'docker run'コマンド実行後、`curl`でアクセスすると`curl: (56) Recv failure: Connection reset by peer`エラーが発生し、Flaskは起動しているように見えるがアクセスが切断される。      
+`docker run`コマンド実行後、`curl`でアクセスすると`curl: (56) Recv failure: Connection reset by peer`エラーが発生し、Flaskは起動しているように見えるがアクセスが切断される。      
   
-**原因**　　
+**原因**  
 Flaskアプリケーションの`host`設定が`127.0.0.1`になっているため  
   
 - 127.0.0.1はループバックアドレスというコンピュータ自身を指す特別なIPアドレス  
@@ -121,10 +127,10 @@ if __name__ == "__main__":
 app.run(host="0.0.0.0", port=5000, debug=True)
 ```  
   
-エラー２:ECSクラスターにEC2インスタンスが表示されない  
+* エラー２:ECSクラスターにEC2インスタンスが表示されない  
   
 **現象**  
-EC2にECSインスタンスが作成されているにも関わらず、ECSクラスターもインフラストラクチャに該当のEC2が表示されない  
+EC2にECSインスタンスが作成されているにも関わらず、ECSクラスターのインフラストラクチャに該当のEC2が表示されない  
   
 **原因**  
 EC2のセキュリティグループにHTTPS:443ポートを許可していなかったことが原因  
@@ -132,8 +138,8 @@ ECSエージェントがAWSのECS APIと通信するのにHTTPS(443)が必要
   
 事前に以下の項目も確認したが問題なかった  
   
-* SSH接続を行い`sudo systemctl status ecs`の結果active
-  - EC2内のecs-agentが動いていることが確認  
+* SSH接続を行い`sudo systemctl status ecs`の結果`active`が表示
+  - EC2内のecs-agentが動いていることを確認  
 * /etc/ecs/ecs.configにECS_CLUSTER=<クラスター名>を確認した結果問題なし
   - ECSエージェントが接続するクラスター名が間違っていないことを確認  
 * IAMロールに必要なポリシーが設定されているかを確認した結果問題なし
@@ -143,8 +149,7 @@ ECSエージェントがAWSのECS APIと通信するのにHTTPS(443)が必要
 EC2のセキュリティグループにHTTPS（443）を許可するルールを追加  
 なお、SSH(22)やFlask(5000)も併せて許可に設定  
 
-エラー３:  
-```CannotPullContainerError: no matching manifest for linux/amd64 in the manifest list entries```  
+* エラー３:```CannotPullContainerError: no matching manifest for linux/amd64 in the manifest list entries```  
   
 **現象**   
  ECSがECRからイメージをプル使用とした際に、上記のエラーメッセージが表示され、自身のアーキテクチャと一致するDockerイメージが存在しないと報告される。  
@@ -160,7 +165,7 @@ ECRにプッシュしていた`aws-flask-app`のイメージが、EC2インス�
 amd64のアーキテクチャになるように、Dockerイメージをビルドする  
 ```docker buildx build --platform linux/amd64 -t タグ .```  
   
-エラー４:ECSタスクが起動できず、サービスがロールバックされる（メモリ不足）  
+* エラー４:ECSタスクが起動できず、サービスがロールバックされる（メモリ不足）  
   
 **現象**  
 ECSでタスクが起動できず、サービスがロールバックされる  
@@ -168,7 +173,7 @@ ECSでタスクが起動できず、サービスがロールバックされる
 エラーメッセージ:  
 ```service was unable to place a task because no container instance met all of its requirements. The closest matching container-instance [...] has insufficient memory available.```  
   
-***内容***  
+**内容**  
 ECSタスクが要求するメモリサイズが、EC2インスタンスで確保できるメモリ量よりも大きいため、タスクを配置できない状態  
   
 **原因**  
