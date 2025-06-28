@@ -9,7 +9,7 @@ AWS ECRとECSを利用したアプリケーションデプロイ
   
 ## 実行手順  
 1. TODOアプリケーションの作成（ローカル環境）  
-PythonでシンプルなTODOアプリを作成し、ローカル環境での動作を確認します。  
+PythonのFlaskでシンプルなTODOアプリを作成し、ローカル環境での動作を確認します。  
 * TODOアプリケーションコード:[TODOアプリ](TODOsub.py)  
 * 実行結果:  
   - ![空実行](img2/ECS-pthon/picture02.png)  
