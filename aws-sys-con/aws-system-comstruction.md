@@ -9,7 +9,7 @@
 ## 第一章  
 --内容--  
 S3の静的ウェブサイトホスティング機能を使いWebサーバーを構築する  
-
+  
 --詳細--  
 1. S3バケットを作成する  
 独自ドメインでアクセスするため、S3バケット名をwww.awsstudyexample2025.comとする  
@@ -58,3 +58,22 @@ index.htmlには「Welcome S3 Bucket.」と表示される内容を記載
 ブラウザからエンドポイントでアクセス  
 ![アクセス成功](img/img1.png)  
 
+## 第二章  
+--内容--  
+WordPressを動かすためのWebサーバーをEC2で構築する  
+  
+--詳細--  
+1. EC2を作成する  
+   - Amazon Linux2023 t2micro  
+   - 開放セキュリティグループ:ssh http https  
+
+2. Nginxのインストール  
+   - ```sudo dnf install nginx```  
+   - ```sudo systemctl start nginx```  
+   - ブラウザで確認→Welcome to nginx!  
+
+3. PHPのインストール  
+   - ```sudo dnf install php```  
+   - ```sudo dnf install php-mysqli php-mbstring php-gd```  
+
+4. 
